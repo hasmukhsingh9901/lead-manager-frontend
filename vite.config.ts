@@ -8,12 +8,17 @@ export default defineConfig(({ mode }) => ({
   server: {
     host: "::",
     port: 5173,
+    proxy: {
+      "/api": {
+        target: "https://lead-manager-backend-qqpc.onrender.com",
+        changeOrigin: true,
+        secure: false,
+      },
+    },
   },
-  plugins: [
-    react(),
-    mode === 'development' &&
-    componentTagger(),
-  ].filter(Boolean),
+  plugins: [react(), mode === "development" && componentTagger()].filter(
+    Boolean
+  ),
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
