@@ -29,10 +29,43 @@ const LeadCapture = () => {
     source: "",
     notes: ""
   });
+  const [errors, setErrors] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/i;
+  const phoneRegex = /^[+\d][\d\s().-]{6,}$/;
+
+  const validateField = (field: string, value: string) => {
+    let message = "";
+    if (field === "firstName" && !value.trim()) message = "First name is required";
+    if (field === "lastName" && !value.trim()) message = "Last name is required";
+    if (field === "email") {
+      if (!value.trim()) message = "Email is required";
+      else if (!emailRegex.test(value)) message = "Enter a valid email";
+    }
+    if (field === "phone" && value.trim() && !phoneRegex.test(value)) {
+      message = "Enter a valid phone number";
+    }
+    setErrors((prev) => ({ ...prev, [field]: message }));
+    return message === "";
+  };
+
+  const validateForm = () => {
+    const results = [
+      validateField("firstName", formData.firstName),
+      validateField("lastName", formData.lastName),
+      validateField("email", formData.email),
+      validateField("phone", formData.phone),
+    ];
+    return results.every(Boolean);
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!validateForm()) {
+      toast({ title: "Please fix the highlighted fields", variant: "destructive" });
+      return;
+    }
     setIsSubmitting(true);
 
     try {
@@ -62,12 +95,16 @@ const LeadCapture = () => {
       source: "",
       notes: ""
     });
+    setErrors({});
     
     setIsSubmitting(false);
   };
 
   const handleInputChange = (field: string, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
+    if (["firstName", "lastName", "email", "phone"].includes(field)) {
+      validateField(field, value);
+    }
   };
 
   return (
@@ -102,6 +139,9 @@ const LeadCapture = () => {
                     required
                     className="bg-white/50"
                   />
+                  {errors.firstName && (
+                    <p className="text-sm text-destructive mt-1">{errors.firstName}</p>
+                  )}
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="lastName">Last Name *</Label>
@@ -112,6 +152,9 @@ const LeadCapture = () => {
                     required
                     className="bg-white/50"
                   />
+                  {errors.lastName && (
+                    <p className="text-sm text-destructive mt-1">{errors.lastName}</p>
+                  )}
                 </div>
               </div>
 
@@ -125,6 +168,9 @@ const LeadCapture = () => {
                   required
                   className="bg-white/50"
                 />
+                {errors.email && (
+                  <p className="text-sm text-destructive mt-1">{errors.email}</p>
+                )}
               </div>
 
               <div className="space-y-2">
@@ -136,6 +182,9 @@ const LeadCapture = () => {
                   onChange={(e) => handleInputChange('phone', e.target.value)}
                   className="bg-white/50"
                 />
+                {errors.phone && (
+                  <p className="text-sm text-destructive mt-1">{errors.phone}</p>
+                )}
               </div>
 
               <div className="space-y-2">
