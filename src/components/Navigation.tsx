@@ -28,7 +28,7 @@ const Navigation = () => {
                 <Button
                   variant={location.pathname === item.path ? "default" : "ghost"}
                   className={cn(
-                    "transition-all duration-200",
+                    "transition-all duration-200 ",
                     location.pathname === item.path 
                       ? "bg-gradient-primary shadow-button" 
                       : "hover:bg-secondary"
